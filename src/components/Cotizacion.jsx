@@ -1,41 +1,45 @@
 import styled from '@emotion/styled'
-import React from 'react'
 
-const ResultadoDiv = styled.div`
-color: black;
-background: white;
-border-radius: 5px;
-font-family: Arial, Helvetica, sans-serif;
+const Contenedor = styled.div`
+    color: #FFF;
+    font-family: 'Lato', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 30px;
 `
-const Info = styled.p`
+const Imagen = styled.img`
+    display: block;
+    width: 120px;
+`
+const Texto = styled.p`
     font-size: 18px;
-    padding: 5px 5px;
-    span{
-      font-weight: bold;
+    span {
+        font-weight: 700;
     }
 `
-
 const Precio = styled.p`
-    font-size: 30px;
-    padding: 5px 5px;
-    span{
-      font-weight: bold;
+    font-size: 24px;
+    span {
+        font-weight: 700;
     }
 `
-
 function Cotizacion ({ resultado }) {
-  if (Object.keys(resultado).length === 0) {
-    return null
-  }
-  console.log(resultado)
+  const { PRICE, HIGHDAY, LOWDAY, CHANGEPCT24HOUR, IMAGEURL, LASTUPDATE } = resultado
   return (
-    <ResultadoDiv>
-      <Precio>Precio es: <span>{resultado.PRICE}</span></Precio>
-      <Info>Precio más alto del día: <span>{resultado.HIGHDAY}</span></Info>
-      <Info>Precio más bajo del día: <span>{resultado.LOWDAY}</span></Info>
-      <Info>Variación últimas 24 horas: <span>{resultado.CHANGEPCT24HOUR}</span></Info>
-      <Info>Última Actualización: <span>{resultado.LASTUPDATE}</span></Info>
-    </ResultadoDiv>
+    <Contenedor>
+      <Imagen
+        src={`https://cryptocompare.com/${IMAGEURL}`}
+        alt='imagen cripto'
+      />
+      <div>
+        <Precio>Precio es: <span>{PRICE}</span></Precio>
+        <Texto>Precio más alto del día: <span>{HIGHDAY}</span></Texto>
+        <Texto>Precio más bajo del día: <span>{LOWDAY}</span></Texto>
+        <Texto>Variación últimas 24 horas: <span>{CHANGEPCT24HOUR}</span></Texto>
+        <Texto>Última Actualización: <span>{LASTUPDATE}</span></Texto>
+      </div>
+    </Contenedor>
   )
 }
 

@@ -1,81 +1,79 @@
-import React, { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
-import axios from 'axios'
-import imagen from '../criptos.png'
-import Formulario from './components/Formulario.jsx'
-import Cotizacion from './components/cotizacion'
+import Formulario from './components/Formulario'
+import Cotizacion from './components/Cotizacion'
 import Spinner from './components/Spinner'
-
+import ImagenCripto from '../criptos.png'
 const Contenedor = styled.div`
   max-width: 900px;
   margin: 0 auto;
-  grid-template-columns: repat(2, 1fr);
-  column-gap: 2rem;
-  display: flex;
-`
-const Imagen = styled.img`
-  max-width: 100%;
-  margin-top: 5rem;
-  width: 600px;
-`
-const Heading = styled.h1`
-  font-family: "Bebas Neue", cursive;
-  color: #fff;
-  text-align: left;
-  font-weight: 700;
-  font-size: 50px;
-  margin-top-bottom: 50px;
-  margin-top: 80px;
-  &::after {
-    content: "";
-    width: 100px;
-    height: 6px;
-    background-color: #66a2fe;
-    display: block;
+  width: 90%;
+  @media (min-width: 992px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 2rem;
   }
 `
-export function App () {
-  const [moneda, guardarMoneda] = useState('')
-  const [criptomoneda, guardarCriptomoneda] = useState('')
-  const [resultado, guardarResultado] = useState({})
-  const [cargando, guardarCargando] = useState(false)
+const Imagen = styled.img`
+  max-width: 400px;
+  width: 80%;
+  margin: 100px auto 0 auto;
+  display: block;
+`
+
+const Heading = styled.h1`
+  font-family: 'Lato', sans-serif;
+  color: #FFF;
+  text-align: center;
+  font-weight: 700;
+  margin-top: 80px;
+  margin-bottom: 50px;
+  font-size: 34px;
+
+  &::after {
+    content: '';
+    width: 100px;
+    height: 6px;
+    background-color: #66A2FE;
+    display: block;
+    margin: 10px auto 0 auto;
+  }
+`
+
+function App () {
+  const [monedas, setMonedas] = useState({})
+  const [resultado, setResultado] = useState({})
+  const [cargando, setCargando] = useState(false)
 
   useEffect(() => {
-    const cotizarCriptomoneda = async () => {
-      if (moneda === '') {
-        return
+    if (Object.keys(monedas).length > 0) {
+      const cotizarCripto = async () => {
+        setCargando(true)
+        setResultado({})
+        const { moneda, criptomoneda } = monedas
+        const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`
+        const respuesta = await fetch(url)
+        const resultado = await respuesta.json()
+        setResultado(resultado.DISPLAY[criptomoneda][moneda])
+        setCargando(false)
       }
-      // Consultar la api para obtener la cotizaxion;
-      const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`
-      const resultado = await axios.get(url)
-      // Mostrar el Spinner
-      guardarCargando(true)
-      // Ocultar Spinner y Mostrar el Resultado
-      setTimeout(() => {
-        // Cqmbiar el estado de Spinner
-        guardarCargando(false)
-        // Guardar Cotizacion
-        guardarResultado(resultado.data.DISPLAY[criptomoneda][moneda])
-      }, 1000)
-    }
-    cotizarCriptomoneda()
-  }, [moneda, criptomoneda])
 
-  // Mostrat Spinner o Resultado
-  const componente = (cargando) ? <Spinner /> : <Cotizacion resultado={resultado} />
+      cotizarCripto()
+    }
+  }, [monedas])
+
   return (
     <Contenedor>
-      <div>
-        <Imagen src={imagen} alt='imagen cripto' />
-      </div>
+      <Imagen src={ImagenCripto} alt='imagenes criptomonedas' />
       <div>
         <Heading>Cotiza Criptomonedas al Instante</Heading>
-        <Formulario
-          guardarMoneda={guardarMoneda}
-          guardarCriptomoneda={guardarCriptomoneda}
-        />
-        {componente}
+        <Formulario setMonedas={setMonedas} />
+
+        {cargando && <Spinner />}
+        {resultado.PRICE && <Cotizacion resultado={resultado} />}
       </div>
     </Contenedor>
   )
 }
+
+export default App

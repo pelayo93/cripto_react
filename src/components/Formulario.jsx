@@ -1,72 +1,76 @@
-import React, { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
-import useMoneda from '../hooks/useMoneda.jsx'
-import useCriptomoneda from '../hooks/useCriptomoneda.jsx'
-import Error from './Error.jsx'
-import Axios from 'axios'
+import Error from './Error'
+import useMoneda from '../hooks/useMoneda'
+import { monedas } from '../data/monedas'
 
-const Boton = styled.input`
-    margin-top: 20px;
-    font-weight: bold;
-    fonst-size: 20px;
-    padding: 10px;
-    background-color: #66a2fe;
-    border: none;
-    width: 100%;
-    border-radius: 10px;
-    color: #FFF;
-    transition: background-color .3 ease;
-
-    &:hover{
-        background-color: #326AC0;
-        cursor: pointer;
-    }
+const InputSubmit = styled.input`
+  background-color: #9497ff;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-top: 30px;
+  &:hover {
+    background-color: #7a7dfe;
+    cursor: pointer;
+  }
 `
+const Formulario = ({ setMonedas }) => {
+  const [criptos, setCriptos] = useState([])
+  const [error, setError] = useState(false)
 
-function Formulario ({ guardarMoneda, guardarCriptomoneda }) {
-  // State del listado de criptomoneda
-  const [listadocripto, guardarCriptomonedas] = useState([])
-  const [error, guardarError] = useState(false)
-  const MONEDAS = [
-    { codigo: 'USD', nombre: 'Dolar de Estados Unidos' },
-    { codigo: 'EUR', nombre: 'Euro' }
-  ]
-  // Utilizar useMoneda
-  const [moneda, Seleccionar] = useMoneda('Elige tu Moneda', '', MONEDAS)
-  // ultilizar useCriptomoneda
-  const [criptomoneda, SelectCripto] = useCriptomoneda('Elige tu Criptomoneda', '', listadocripto)
-  // Llamado a la api
+  const [moneda, SelectMonedas] = useMoneda('Elige tu Moneda', monedas)
+  const [criptomoneda, SelectCriptomoneda] = useMoneda(
+    'Elige tu Criptomoneda',
+    criptos
+  )
   useEffect(() => {
-    const consultarApi = async () => {
-      const url = 'https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD'
-      const resultado = await Axios.get(url)
-      guardarCriptomonedas(resultado.data.Data)
+    const consultarAPI = async () => {
+      const url =
+        'https://min-api.cryptocompare.com/data/top/mktcapfull?limit=20&tsym=USD'
+      const respuesta = await fetch(url)
+      const resultado = await respuesta.json()
+
+      const arrayCriptos = resultado.Data.map((cripto) => {
+        const objeto = {
+          id: cripto.CoinInfo.Name,
+          nombre: cripto.CoinInfo.FullName
+        }
+        return objeto
+      })
+      setCriptos(arrayCriptos)
     }
-    consultarApi()
+    consultarAPI()
   }, [])
 
-  // cuando el usuario hace submit
-  const cotizarMoneda = e => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    // validar los campos
-    if (moneda === '' || criptomoneda === '') {
-      guardarError(true)
+    if ([moneda, criptomoneda].includes('')) {
+      setError(true)
       return
     }
-    // pasar los datos al componente princilpal
-    guardarError(false)
-    guardarMoneda(moneda)
-    guardarCriptomoneda(criptomoneda)
+    setError(false)
+    setMonedas({
+      moneda,
+      criptomoneda
+    })
   }
+
   return (
-    <div>
-      <form onSubmit={cotizarMoneda}>
-        {error ? <Error mensaje='Todos los campos son Obligatorios' /> : null}
-        <Seleccionar />
-        <SelectCripto />
-        <Boton type='submit' value='Calcular' />
+    <>
+      {error && <Error>Todos los campos son obligatorios</Error>}
+      <form onSubmit={handleSubmit}>
+        <SelectMonedas />
+        <SelectCriptomoneda />
+        <InputSubmit type='submit' value='Cotizar' />
       </form>
-    </div>
+    </>
   )
 }
 

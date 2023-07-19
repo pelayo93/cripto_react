@@ -1,42 +1,39 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import styled from '@emotion/styled'
-const useMoneda = (label, stateInicial, opcionesMonedas) => {
-  const Label = styled.label`
-    font-family: 'Bebas Neue', cursive;
-    color: #FFF;
-    text-transform: uppercase;
-    font-wight: bold;
-    font-size: 2.4rem;
-    margin-top: 2rem;
-    display: block;
-  `
-  const Select = styled.select`
-    width: 100%;
-    display: block;
-    padding: 1rem;
-    -webkit-appearance: none;
-    border-radius: 10px;
-    border: none;
-    font-size: 1rem;
-  `
-  // State de nuestro custom hook
-  const [state, actualizarState] = useState('')
-  const Seleccionar = () => (
+
+const Label = styled.label`
+  color: #fff;
+  display: block;
+  font-family: 'Lato', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 15px 0;
+`
+const Select = styled.select`
+  width: 100%;
+  font-size: 18px;
+  padding: 14px;
+  border-radius: 10px;
+`
+
+const useSelectMonedas = (label, opciones) => {
+  const [state, setState] = useState('')
+
+  const SelectMonedas = () => (
     <>
       <Label>{label}</Label>
-      <Select
-        onChange={e => actualizarState(e.target.value)}
-        value={state}
-      >
-        <option value=''>-- Seleccione  --</option>
-        {opcionesMonedas.map(opcion => (
-          <option key={opcion.codigo} value={opcion.codigo}>{opcion.nombre}</option>
+      <Select value={state} onChange={(e) => setState(e.target.value)}>
+        <option value=''>Seleccione</option>
+        {opciones.map((opcion) => (
+          <option key={opcion.id} value={opcion.id}>
+            {opcion.nombre}
+          </option>
         ))}
       </Select>
     </>
   )
-  // Reronar state, interfax y fin que modifica el state
-  return [state, Seleccionar, actualizarState]
+
+  return [state, SelectMonedas]
 }
 
-export default useMoneda
+export default useSelectMonedas
